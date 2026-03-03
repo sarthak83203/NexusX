@@ -74,10 +74,10 @@ class GeminiService:
         """
         
         try:
-            response = self.model.generate_content(prompt)
+            response = self.model.generate_content(prompt, generation_config={'temperature': 0.3})
             return response.text.strip()
         except Exception as e:
-            logger.error(f"Gemini generation error: {e}")
+            logger.warning(f"Gemini API error, using fallback: {e}")
             return self._fallback_explanation(risk_factors)
 
     def analyze_spending_pattern(self, transactions: list, username: str) -> str:
@@ -99,10 +99,10 @@ class GeminiService:
         """
         
         try:
-            response = self.model.generate_content(prompt)
+            response = self.model.generate_content(prompt, generation_config={'temperature': 0.3})
             return response.text.strip()
         except Exception as e:
-            logger.error(f"Gemini spending analysis error: {e}")
+            logger.warning(f"Gemini spending analysis unavailable: {e}")
             return "Keep an eye on your transaction history for any suspicious activity."
 
     def get_daily_security_tip(self) -> str:
@@ -112,10 +112,10 @@ class GeminiService:
         prompt = "Give ONE very short (max 20 words), practical, specific UPI safety tip. No preamble. Just the tip."
         
         try:
-            response = self.model.generate_content(prompt)
+            response = self.model.generate_content(prompt, generation_config={'temperature': 0.3})
             return response.text.strip()
         except Exception as e:
-            logger.error(f"Gemini security tip error: {e}")
+            logger.warning(f"Gemini security tip unavailable: {e}")
             return "Always verify the receiver's name before entering your UPI PIN."
 
     def admin_risk_summary(self, flagged_list: list) -> str:
@@ -137,10 +137,10 @@ class GeminiService:
         """
         
         try:
-            response = self.model.generate_content(prompt)
+            response = self.model.generate_content(prompt, generation_config={'temperature': 0.3})
             return response.text.strip()
         except Exception as e:
-            logger.error(f"Gemini admin summary error: {e}")
+            logger.warning(f"Gemini admin summary unavailable: {e}")
             return "AI summary unavailable."
 
     def _fallback_explanation(self, risk_factors: list) -> str:

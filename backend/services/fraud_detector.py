@@ -28,15 +28,31 @@ class FraudDetector:
         # Use ML model if available
         if self.tensorflow_available and self._predict_fraud:
             is_fraud, probability = self._predict_fraud(recent_transactions, current_tx)
+            # If model returns 0 or very low probability but risk factors exist, use rule-based
+            if probability < 0.1 and risk_factors:
+                high_severity = sum(1 for f in risk_factors if f['severity'] == 'high')
+                medium_severity = sum(1 for f in risk_factors if f['severity'] == 'medium')
+                probability = 0.1 + (high_severity * 0.25) + (medium_severity * 0.15)
+                probability = min(probability, 0.95)
+                is_fraud = probability >= self.threshold
+            elif not risk_factors:
+                # No risk factors = safe transaction regardless of model output
+                probability = 0.0
+                is_fraud = False
         else:
             # Rule-based fallback: calculate probability based on risk factors
-            high_severity = sum(1 for f in risk_factors if f['severity'] == 'high')
-            medium_severity = sum(1 for f in risk_factors if f['severity'] == 'medium')
-            
-            # Calculate probability: base 0.1 + high*0.25 + medium*0.15, capped at 0.95
-            probability = 0.1 + (high_severity * 0.25) + (medium_severity * 0.15)
-            probability = min(probability, 0.95)
-            is_fraud = probability >= self.threshold
+            if not risk_factors:
+                # No risk factors = safe transaction
+                probability = 0.0
+                is_fraud = False
+            else:
+                high_severity = sum(1 for f in risk_factors if f['severity'] == 'high')
+                medium_severity = sum(1 for f in risk_factors if f['severity'] == 'medium')
+                
+                # Calculate probability: base 0.1 + high*0.25 + medium*0.15, capped at 0.95
+                probability = 0.1 + (high_severity * 0.25) + (medium_severity * 0.15)
+                probability = min(probability, 0.95)
+                is_fraud = probability >= self.threshold
         
         return is_fraud, probability, risk_factors
 

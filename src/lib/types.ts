@@ -41,6 +41,7 @@ export interface TransactionResult {
   status: 'success' | 'blocked';
   message: string;
   balance?: number;
+  amount?: number;
   explanation?: string;
   fraud_probability: number;
   risk_factors?: RiskFactor[];
@@ -48,7 +49,14 @@ export interface TransactionResult {
 }
 
 export interface FlaggedData {
-  flagged_transactions: Transaction[];
+  flagged_transactions: Array<{
+    _id: string;
+    username: string;
+    amount: number;
+    fraud_probability: number;
+    explanation: string;
+    reviewed: boolean;
+  }>;
   count: number;
   ai_summary: string;
 }

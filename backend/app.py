@@ -42,6 +42,22 @@ def create_app():
     app.register_blueprint(transactions_bp, url_prefix='/api/transactions')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     
+    # Root route - API info
+    @app.route('/', methods=['GET'])
+    def root():
+        return jsonify({
+            'status': 'ok',
+            'app': 'NexusGuard API',
+            'version': '1.0',
+            'message': 'API is running. Use /api/* endpoints.',
+            'endpoints': {
+                'health': '/api/health',
+                'auth': '/api/auth',
+                'transactions': '/api/transactions',
+                'admin': '/api/admin'
+            }
+        }), 200
+    
     # Health check route
     @app.route('/api/health', methods=['GET'])
     def health_check():
